@@ -1,0 +1,14 @@
+path {
+  stroke: #ffffff;
+  opacity: 0.9;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.background {
+	background: white;
+	fill: white;
+}
+
