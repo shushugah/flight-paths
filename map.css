@@ -12,3 +12,6 @@ path {
 	fill: white;
 }
 
+.active {
+  fill: #800020;
+}

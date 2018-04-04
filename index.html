@@ -3,6 +3,7 @@
 <link rel="stylesheet" type="text/css" href="map.css"/>
 <body>
   <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+  <script type="text/javascript" src="initialize.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
   <script>
     var width = window.innerWidth,
@@ -34,8 +35,51 @@
           .append("path")
           .attr("d", path)
           .attr('fill', "green")
+          .attr('fill-opacity', countryOpacity)
+          .on("click", zoomedIn);
      });
 
+    function zoomedIn(d) {
+      var x, y, k;
+      //if not centered into that country
+      if (d && centered !== d) {
+        var centroid = path.centroid(d); // get center of country
+        var bounds = path.bounds(d); // get bounds of country
+        var dx = bounds[1][0] - bounds[0][0], // get bounding box
+            dy = bounds[1][1] - bounds[0][1];
+        // get transformation values
+        x = (bounds[0][0] + bounds[1][0]) / 2;
+        y = (bounds[0][1] + bounds[1][1]) / 2;
+        k = Math.min(width / dx, height / dy);
+        centered = d;
+      } else {
+        // else reset to global view
+        x = width / 2;
+        y = height / 2;
+        k = 1;
+        centered = null;
+      }
+
+      g.selectAll("path")
+       .classed("active", centered && function(d) { return d === centered; })
+
+      // make contours thinner before zoom for smoothness
+      if (centered !== null){
+        g.selectAll("path")
+         .style("stroke-width", (0.75 / k) + "px");
+      }
+
+      // map transition
+        g.transition()
+          .duration(750)
+          .attr("transform", `translate(${width / 2}, ${height / 2})scale(${k})translate(${-x},${-y})`)
+          .on('end', function() {
+              if (centered === null){
+                g.selectAll("path")
+                 .style("stroke-width", (0.75 / k) + "px");
+          }
+        });
+      }
 
   </script>
   </body>
